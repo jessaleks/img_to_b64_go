@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"image"
-	"image/draw"
 	"image/jpeg"
 	"image/png"
 	"io"
@@ -13,9 +13,13 @@ import (
 	"os"
 
 	"github.com/chai2010/webp"
+	"github.com/disintegration/imaging"
 )
 
 func main() {
+	var base64Encoding string
+	var buf bytes.Buffer
+
 	arg := os.Args[1]
 	if arg == "" || arg == "\n" {
 		os.Exit(1)
@@ -39,35 +43,42 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Resize the image to 64x300 pixels
+	// Resize the image to 64x300 pixels, blur the image, increase saturation by 10% and encode it to base64
 
 	img, _, err := image.Decode(imgResponse.Body)
 
-	newImg := image.NewRGBA(image.Rect(0, 0, 64, 30))
+	if err != nil {
+		log.Fatalf("Error decoding image: %v", err)
+		os.Exit(1)
+	}
 
-	draw.
-	//converting image.Image to bytes
-	//creates a new reader that reads from resized
+	newImg := imaging.Fill(img, 64, 30, imaging.Center, imaging.Linear)
+	saturatedImage := imaging.AdjustSaturation(newImg, 1.2)
+	blurredImg := imaging.Blur(saturatedImage, 2.5)
 
-	// Determine the content type of the image file
-	mimeType := http.DetectContentType(bytes)
+	if err != nil {
+		log.Fatalf("Error resizing image: %v", err)
+		os.Exit(1)
+	}
 
-	var base64Encoding string
-	// Prepend the appropriate URI scheme header depending
-	// on the MIME type
-	switch mimeType {
+	// detecting the image type
+
+	switch imgResponse.Header.Get("Content-Type") {
 	case "image/jpeg":
+		jpeg.Encode(&buf, blurredImg, nil)
 		base64Encoding += "data:image/jpeg;base64,"
 	case "image/png":
+		png.Encode(&buf, blurredImg)
 		base64Encoding += "data:image/png;base64,"
-	case "image/gif":
-		base64Encoding += "data:image/gif;base64,"
 	case "image/webp":
+		webp.Encode(&buf, blurredImg, nil)
 		base64Encoding += "data:image/webp;base64,"
+	default:
+		log.Fatal("Unsupported image format")
 	}
 
 	// Append the base64 encoded output
-	base64Encoding += toBase64(bytes)
+	base64Encoding += toBase64(buf.Bytes())
 
 	fmt.Println(base64Encoding)
 }
