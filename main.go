@@ -8,13 +8,12 @@ import (
 	"image/jpeg"
 	"image/png"
 
-	"io"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/chai2010/webp"
 	"github.com/disintegration/imaging"
+	"github.com/kolesa-team/go-webp/webp"
 )
 
 func main() {
@@ -72,8 +71,7 @@ func main() {
 		png.Encode(&buf, blurredImg)
 		base64Encoding += "data:image/png;base64,"
 	case "image/webp":
-		webp.Encode(&buf, blurredImg, nil)
-		base64Encoding += "data:image/webp;base64,"
+		webp.Encode(&buf, blurredImg, &webp.Options{})
 	default:
 		log.Fatal("Unsupported image format")
 	}
@@ -81,7 +79,7 @@ func main() {
 	// Append the base64 encoded output
 	base64Encoding += toBase64(buf.Bytes())
 
-	fmt.Println(base64Encoding)
+	fmt.Printf("\n %s \n", base64Encoding)
 }
 
 func decode(imgResponse *http.Response, err error) image.Image {
@@ -92,7 +90,7 @@ func decode(imgResponse *http.Response, err error) image.Image {
 	case "image/png":
 		image, err = png.Decode(imgResponse.Body)
 	case "image/webp":
-		image, err = decodeWebP(imgResponse.Body)
+		image, err = webp.Decode(imgResponse.Body)
 	default:
 		log.Fatal("Unsupported image format")
 	}
@@ -102,13 +100,13 @@ func decode(imgResponse *http.Response, err error) image.Image {
 	return image
 }
 
-func decodeWebP(r io.Reader) (image.Image, error) {
-	img, err := webp.Decode(r)
-	if err != nil {
-		return nil, err
-	}
-	return img, nil
-}
+// func decodeWebP(r io.Reader) (image.Image, error) {
+// 	img, err := webp.Decode(r)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return img, nil
+// }
 
 func toBase64(b []byte) string {
 	return base64.StdEncoding.EncodeToString(b)

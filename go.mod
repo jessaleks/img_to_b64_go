@@ -10,5 +10,6 @@ require (
 
 require (
 	github.com/BurntSushi/graphics-go v0.0.0-20160129215708-b43f31a4a966 // indirect
+	github.com/kolesa-team/go-webp v1.0.4 // indirect
 	golang.org/x/image v0.7.0 // indirect
 )
