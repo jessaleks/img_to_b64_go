@@ -12,11 +12,12 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/chai2010/webp"
 	"github.com/disintegration/imaging"
-	"github.com/kolesa-team/go-webp/decoder"
-	"github.com/kolesa-team/go-webp/encoder"
-	"github.com/kolesa-team/go-webp/webp"
 )
+
+//
+//
 
 func main() {
 	var base64Encoding string
@@ -73,7 +74,8 @@ func main() {
 		png.Encode(&buf, blurredImg)
 		base64Encoding += "data:image/png;base64,"
 	case "image/webp":
-		webp.Encode(&buf, blurredImg, &encoder.Options{Lossless: false })
+		webp.Encode(&buf, blurredImg, &webp.Options{Quality: 60})
+		base64Encoding += "data:image/webp;base64,"
 	default:
 		log.Fatal("Unsupported image format")
 	}
@@ -92,7 +94,7 @@ func decode(imgResponse *http.Response, err error) image.Image {
 	case "image/png":
 		image, err = png.Decode(imgResponse.Body)
 	case "image/webp":
-		image, err = webp.Decode(imgResponse.Body, &decoder.Options{})
+		image, err = webp.Decode(imgResponse.Body)
 	default:
 		log.Fatal("Unsupported image format")
 	}
