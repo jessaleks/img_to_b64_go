@@ -23,6 +23,10 @@ func main() {
 	var base64Encoding string
 	var buf bytes.Buffer
 
+	if len(os.Args) == 1 {
+		log.Fatalln("Remember to pass in an argument for the URL")
+	}
+
 	arg := os.Args[1]
 	if arg == "" || arg == "\n" {
 		os.Exit(1)
