@@ -59,9 +59,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	newImg := imaging.Fill(img, 64, 30, imaging.Center, imaging.Linear)
+	newImg := imaging.Fill(img, 50, 50, imaging.Center, imaging.Linear)
 	saturatedImage := imaging.AdjustSaturation(newImg, 1.2)
-	blurredImg := imaging.Blur(saturatedImage, 2.5)
+	blurredImg := imaging.Blur(saturatedImage, 10)
 
 	if err != nil {
 		log.Fatalf("Error resizing image: %v", err)
@@ -78,7 +78,7 @@ func main() {
 		png.Encode(&buf, blurredImg)
 		base64Encoding += "data:image/png;base64,"
 	case "image/webp":
-		webp.Encode(&buf, blurredImg, &webp.Options{Quality: 60})
+		webp.Encode(&buf, blurredImg, &webp.Options{Quality: 50})
 		base64Encoding += "data:image/webp;base64,"
 	default:
 		log.Fatal("Unsupported image format")
